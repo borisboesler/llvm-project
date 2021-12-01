@@ -1341,19 +1341,16 @@ void MCAsmStreamer::emitFill(const MCExpr &NumBytes, uint64_t FillValue,
       if (FillValue != 0)
         OS << ',' << (int)FillValue;
       EmitEOL();
-    } else {
-      if (!IsAbsolute)
-        report_fatal_error(
-            "Cannot emit non-absolute expression lengths of fill.");
-      for (int i = 0; i < IntNumBytes; ++i) {
-        OS << MAI->getData8bitsDirective() << (int)FillValue;
-        EmitEOL();
-      }
+      return;
     }
-    return;
   }
 
-  MCStreamer::emitFill(NumBytes, FillValue);
+  if (!IsAbsolute)
+    report_fatal_error("Cannot emit non-absolute expression lengths of fill.");
+  for (int i = 0; i < IntNumBytes; ++i) {
+    OS << MAI->getData8bitsDirective() << (int)FillValue;
+    EmitEOL();
+  }
 }
 
 void MCAsmStreamer::emitFill(const MCExpr &NumValues, int64_t Size,
